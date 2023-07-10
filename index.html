@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="en-us">
+	<head>
+		<meta charset="UTF-8">
+
+		<!-- A-Frame core library -->
+		<script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+
+		<!-- AFrameP5 library -->
+		<script src="https://craignyu.github.io/aframep5/libraries/aframep5-v2.1.js"></script>
+
+		<!-- p5 library -->
+	    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+
+	    <!-- load in the p5 sound library -->
+	    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js" integrity="sha512-WzkwpdWEMAY/W8WvP9KS2/VI6zkgejR4/KTxTl4qHx0utqeyVE0JY+S1DlMuxDChC7x0oXtk/ESji6a0lP/Tdg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+	    <!-- the p5 speech library
+	             https://idmnyu.github.io/p5.js-speech/
+	             this will also require a secure (https) connection, or your localhost
+	        -->
+	    <script src="https://cdn.jsdelivr.net/gh/IDMNYU/p5.js-speech@0.0.3/lib/p5.speech.js"></script>
+
+
+		<!-- custom styles -->
+		<style>
+			body {
+				padding: 0;
+				margin: 0;
+				font-family: Optima;
+			}
+			#instruction{
+				position: relative;
+				text-align: center;
+			}
+			#map{
+				z-index: 5;
+				position: absolute;				
+				top:  50px;
+				left: 350px;
+				width: 800px;
+				height: auto;
+				transition: top 0.3s ease, left 0.3s ease, width 0.3s ease;
+			}
+			.inside{
+				position: relative;
+				  width: 100%;
+				  margin: 2px;
+				  height: 0;
+				  padding-bottom: 71%; 
+				  overflow: hidden;
+			}
+			#room_selection{
+				float: right;
+				clear: right;
+				margin-bottom: 5px;
+				border: 2px solid black;
+				padding: 3px;
+			}
+
+			#language_selection{
+				float: right;
+				margin-bottom: 5px;
+				border: 2px solid black;
+				padding: 3px;
+			}
+
+			button{
+				margin-top: 5px;
+				border: 2px solid white;
+				padding: 2px;
+			}
+
+			select, button {
+			    background-color: white;
+			    border-radius: 5px;
+			    color: #333;
+			    cursor: pointer;
+			    outline: none;
+			 }
+
+			button:hover {
+			    border-color: #2196F3;
+			}
+			.mapbg{
+				width: 100%;
+			}
+
+			#main1{
+				width: 6%;
+				position:absolute;
+				top: 70%;
+				left: 49%;
+			}
+			#main2{
+				width: 6%;
+				position:absolute;
+				top: 30%;
+				left: 5%;
+			}
+			#main3{
+				width: 6%;
+				position:absolute;
+				top: 50%;
+				left: 15%;
+			}
+			#main4{
+				width: 6%;
+				position:absolute;
+				top: 75%;
+				left: 15%;
+			}
+			#main5{
+				width: 6%;
+				position:absolute;
+				top: 10%;
+				left: 57%;
+			}
+			#base6{
+				width: 6%;
+				position:absolute;
+				top: 10%;
+				left: 25%;
+			}
+
+			#base7{
+				width: 6%;
+				position:absolute;
+				top: 40%;
+				left: 25%;
+			}
+
+			#base8{
+				width: 6%;
+				position:absolute;
+				top: 30%;
+				left: 88%;
+			}
+
+
+			#second9{
+				width: 6%;
+				position:absolute;
+				top: 60%;
+				left: 42%;
+			}
+
+			#second10{
+				width: 6%;
+				position:absolute;
+				top: 20%;
+				left: 85%;
+			}
+
+			.hidden{
+				display: none;
+			}
+
+
+			.placeholder{
+				padding: 30px;
+				font-size: 1em;
+				border-radius: 5px;
+				z-index: 5;
+				left: 0;
+  				right: 0;
+				position: fixed;
+				margin-left: auto;
+				margin-right: auto;
+				width: 80%;
+				height: auto;
+				bottom: 10px;
+				background-color: rgba(255,255,255,0.75);
+				opacity: 1;
+			    transition: opacity 1s ease;
+			
+			}
+			#expand{
+				float: right;
+			}
+			#close{
+				float: right;
+			}
+			#close_img10{
+				float: right;
+				margin-bottom: 2px;
+			}
+			#close_img8{
+				float: right;
+				margin-bottom: 2px;
+			}
+			.opening-screen {
+				z-index: 10;
+			    position: absolute;
+			    top: 0;
+			    left: 0;
+			    width: 100%;
+			    height: 100%;
+			    background-color: #000;
+			    display: flex;
+			    justify-content: center;
+			    align-items: center;
+			    z-index: 100;
+			    opacity: 1;
+			    transition: opacity 1s ease;
+			}
+
+			.fade{
+				opacity: 0;
+    			pointer-events: none;
+			}
+			a{
+				color: black;
+			}
+			a:hover{
+				font-weight: bold;
+			}
+
+			#second10_img{
+				z-index: 5;
+				position: fixed;
+				top: 100px;
+				left: 0;
+  				right: 0;
+				margin-left: auto;
+				margin-right: auto;
+				width: 40%;
+				height: auto;
+				opacity: 1;
+			    transition: opacity 1s ease;
+			}
+
+			#base8_img{
+				z-index: 5;
+				position: fixed;
+				top: 100px;
+				left: 0;
+  				right: 0;
+				margin-left: auto;
+				margin-right: auto;
+				width: 40%;
+				height: auto;
+				opacity: 1;
+			    transition: opacity 1s ease;
+			}
+
+
+		</style>
+	</head>
+	<body>
+		<div class="opening-screen" id="openingScreen">
+		   <img src='images/open.png' style="width:100%">
+		</div>
+
+		<!-- container to hold our VR scene - make sure to give this element an ID of 'VRScene' -->
+	    <a-scene id="VRScene">
+
+	    	<!--
+		       The 'a-assets' container is used to load in any external artwork you may want to use as "textures" for your objects. Ensure that this element has an ID of 'VRAssets'
+
+		       Textures can be loaded by creating a new 'a-asset' tag inside of the 'a-assets' container.
+		       When doing this you will need to make sure to give your textures a unique ID -
+		       this will be used by p5 to create new objects.
+
+		       Example:
+
+		       <img id="ITEM_ID_GOES_HERE" src="images/gold_block.png">
+				-->
+
+				<a-assets id="VRAssets">
+
+					<img src="" id="selected">
+
+				</a-assets>
+
+	    </a-scene>
+
+	    <div id="map">
+	    	<div id="instruction">
+	    		<h1>START BY SELECTING A SPOT</h1>
+	    		<select id="language_selection">
+	                <option value="eng">English</option>
+	                <option disabled>Español</option>
+	                <option disabled>Français</option>
+	                <option disabled>Deutsch</option>
+	                <option disabled>简体中文</option>
+	                <option disabled>繁體中文</option>
+	                <option disabled>日本語</option>
+	                <option disabled>한국어</option>
+            	</select>
+	    	</div>	
+	    	<select id="room_selection">
+                <option value="main">Main Floor</option>
+                <option value="basement">Basement</option>
+                <option value="second">Second Floor</option>
+            </select>
+            <div class="inside" id="m">
+		    	<img src="images/main.png" class="mapbg">
+		    	<img src="images/button.png" id="main1" class="spot">
+		    	<img src="images/button.png" id="main2" class="spot">
+		    	<img src="images/button.png" id="main3" class="spot">
+		    	<img src="images/button.png" id="main4" class="spot">
+		    	<img src="images/button.png" id="main5" class="spot">
+		    </div>
+
+		    <div class="inside hidden" id="b">
+		    	<img src="images/basement.png" class="mapbg">
+		    	<img src="images/button.png" id="base6" class="spot">
+		    	<img src="images/button.png" id="base7" class="spot">
+		    	<img src="images/button.png" id="base8" class="spot">
+		    </div>
+
+		    <div class="inside hidden" id="s">
+		    	<img src="images/second.png" class="mapbg">
+		    	<img src="images/button.png" id="second9" class="spot">
+		    	<img src="images/button.png" id="second10" class="spot">
+		    </div>
+		    <button id="expand" class="hidden">EXPAND</button>
+		    <button id="close" class="hidden">CLOSE</button>
+	    </div>	
+
+	    <div id="placeholder_div">
+	    <div id="main1_ph" class='placeholder fade'>On the first floor there are two large parlors. These would have been used for a variety of activities including dining and socializing with friends and business and political associates.</div>
+
+	    <div id="main2_ph" class='placeholder fade'>When William died in 1787,  his son Jacobus took over the house and farm. Jacobus moved into the farmhouse around 1793 and inherited a modest farmhouse that he would alter significantly over the next several decades. By 1820, there were 10 people living in the household. Jacobus was the head of a household that included: three of his sons (Jacob, Isaac and Michael), his young grandson James Frederick Smith, his niece Maria, one unidentified white woman, a free black woman, a free black boy and one enslaved male.</div>
+
+	    <div id="main3_ph" class='placeholder fade'>The founding father of our Dyckman family was Jan Dyckman, who arrived in New Amsterdam in the 1600’s from Westphalia. By the time of the American Revolution, the Dyckman family homestead was located roughly near 210th Street and the East River and Jan’s grandson William had inherited Dyckman land from his father. During the British occupation of Manhattan in 1776-1783, William Dyckman and his family sought refuge in upstate New York.</div>
+
+	    <div id="main4_ph" class='placeholder fade'>Jacobus, who primarily identified himself as a farmer, was also involved in local politics. Two of his sons worked on the farm while two others pursued higher education. We believe the portrait in this room is of his son, Dr. Jacob Dyckman.</div>
+
+	    <div id="base6_ph" class='placeholder fade'>Family tradition tells of a free black woman named Hannah who lived with the family and worked as a cook. Based on those stories we believe she was living in the farmhouse in 1820. According to census records, Hannah was born between 1784-1794 which would make her between the ages of 26 and 36 in 1820. A 1917 legislature states the following: “the cook, black Hannah, who had been born on the place as the daughter of a slave who was partly of Indian blood. Tradition describes her with a bright-colored headgear, face black as ebony, temper decidedly irregular, and a strong leaning toward a corncob pipe.”</div>
+
+	    <div id="base7_ph" class='placeholder fade'>The Farmhouse has two kitchens, Winter and Summer. The Winter Kitchen would have kept the home very warm in the cold months and would also have been used as a non-cooking work space in the summer. The Summer Kitchen (closed to the public) has a small bedroom above it and that room, as well as both kitchen spaces, may have been the sleeping quarters for the free black woman, free black boy and one male slave within the household.</div>
+
+	    <div id="base8_img" class='hidden fade'>
+	    	<button id='close_img8'>X</button>
+	    	<img style='width:100%; height: auto; border:5px solid; border-color:rgba(255, 255, 255, 0.75);box-sizing: border-box;border-radius: 5px;' src='images/b8.jpeg'>
+	    </div>
+
+	    <div id="base8_ph" class='placeholder fade' style='text-align: center;'>You find the hidden game on the bed rock!<br><br><a href="https://toytheater.com/nine-mens-morris/">“Nine Men’s Morris”</a><br><br>It might be carved by the Dyckman kids. <br>It might be carved by the soldiers who occupied this farmhouse.</div>
+
+	    <div id="second9_ph" class='placeholder fade'>It is believed that the second floor was one open space up until the 1820s when it was divided into the separate bedrooms still present today</div>
+
+	    <div id="second10_img" class='hidden fade'>
+	    	<button id='close_img10'>X</button>
+	    	<img style='width:100%; height: auto; border:5px solid; border-color:rgba(255, 255, 255, 0.75);box-sizing: border-box;border-radius: 5px;' src='images/s10.JPG'>
+	    </div>
+
+	    <div id="second10_ph" class='placeholder fade'>
+
+	    Some rooms were furnished with the goal of recreating a New York interior in the year 1800. They collected furniture and objects dating to the 18th and 19th centuries, some of which originally belonged to the Dyckman family. The embroidery practice displayed over the cabinet was a typical activity for high-class women in the colonial years. Their museum rooms reflected the early 20th century romantic view of colonial life.</div>
+		</div>
+
+
+	    <script>
+
+	    //fade out the opening screen 
+	    function hideOpeningScreen() {
+	      const openingScreen = document.getElementById('openingScreen');
+	      openingScreen.classList.add('fade');
+	    }
+	    setTimeout(hideOpeningScreen, 3000);
+
+	    let instruction = document.getElementById("instruction")
+		let map = document.getElementById("map")
+		let back = document.getElementById("back")
+		let selected = document.getElementById("selected")
+
+		let temp = document.querySelector("#placeholder_div")
+		let placeholder=temp.children
+		let main1_ph = document.getElementById("main1_ph")
+		let main2_ph = document.getElementById("main2_ph")
+		let main3_ph = document.getElementById("main3_ph")
+		let main4_ph = document.getElementById("main4_ph")
+		let base6_ph = document.getElementById("base6_ph")
+		let base7_ph = document.getElementById("base7_ph")
+		let base8_ph = document.getElementById("base8_ph")
+		let second9_ph = document.getElementById("second9_ph")
+		let second10_ph = document.getElementById("second10_ph")
+		let second10_img = document.getElementById("second10_img")
+		let base8_img = document.getElementById("base8_img")
+
+		let expand = document.getElementById("expand")
+		let close = document.getElementById("close")
+		let close_img10 = document.getElementById("close_img10")
+		let close_img10_clicked=false
+		let close_img8 = document.getElementById("close_img8")
+		let close_img8_clicked=false
+		let main1 = document.getElementById("main1")
+		let main2 = document.getElementById("main2")
+		let main3 = document.getElementById("main3")
+		let main4 = document.getElementById("main4")
+		let main5 = document.getElementById("main5")
+		let base6 = document.getElementById("base6");
+		let base7 = document.getElementById("base7");
+		let base8 = document.getElementById("base8");
+		let second9 = document.getElementById("second9");
+		let second10 = document.getElementById("second10");
+		
+		let spots = document.getElementsByClassName("spot")
+
+		//select floor
+		let room = document.getElementById("room_selection")
+		let m = document.getElementById("m")
+		let b = document.getElementById("b")
+		let s = document.getElementById("s")
+
+
+		//voices
+			//texts
+		// let main1_v="On the first floor there are two large parlors. These would have been used for a variety of activities including dining and socializing with friends and business and political associates."
+		// let main2_v="When William died in 1787,  his son Jacobus took over the house and farm. Jacobus moved into the farmhouse around 1793 and inherited a modest farmhouse that he would alter significantly over the next several decades. By 1820, there were 10 people living in the household. Jacobus was the head of a household that included: three of his sons (Jacob, Isaac and Michael), his young grandson James Frederick Smith, his niece Maria, one unidentified white woman, a free black woman, a free black boy and one enslaved male."
+		// let main3_v="The founding father of our Dyckman family was Jan Dyckman, who arrived in New Amsterdam in the 1600’s from Westphalia. By the time of the American Revolution, the Dyckman family homestead was located roughly near 210th Street and the East River and Jan’s grandson William had inherited Dyckman land from his father. During the British occupation of Manhattan in 1776-1783, William Dyckman and his family sought refuge in upstate New York."
+		// let main4_v="Jacobus, who primarily identified himself as a farmer, was also involved in local politics. Two of his sons worked on the farm while two others pursued higher education. We believe the portrait in this room is of his son, Dr. Jacob Dyckman."
+		// let main5_v="You can access the basement floor via arrow above the staircase"
+		// let base6_v="Family tradition tells of a free black woman named Hannah who lived with the family and worked as a cook. Based on those stories we believe she was living in the farmhouse in 1820. According to census records, Hannah was born between 1784-1794 which would make her between the ages of 26 and 36 in 1820. A 1917 legislature states the following: “the cook, black Hannah, who had been born on the place as the daughter of a slave who was partly of Indian blood. Tradition describes her with a bright-colored headgear, face black as ebony, temper decidedly irregular, and a strong leaning toward a corncob pipe."
+		// let base7_v="The Farmhouse has two kitchens, Winter and Summer. The Winter Kitchen would have kept the home very warm in the cold months and would also have been used as a non-cooking work space in the summer. The Summer Kitchen (closed to the public) has a small bedroom above it and that room, as well as both kitchen spaces, may have been the sleeping quarters for the free black woman, free black boy and one male slave within the household."
+		// let base8_v="You find the hidden game on the bed rock! Nine Men’s Morris. It might be carved by the Dyckman kids. It might be carved by the soldiers who occupied this farmhouse."
+		// let second9_v="It is believed that the second floor was one open space up until the 1820s when it was divided into the separate bedrooms still present today"
+		// let second10_v=" Some rooms were furnished with the goal of recreating a New York interior in the year 1800. They collected furniture and objects dating to the 18th and 19th centuries, some of which originally belonged to the Dyckman family. The embroidery practice displayed over the cabinet was a typical activity for high-class women in the colonial years. Their museum rooms reflected the early 20th century romantic view of colonial life."
+
+		let voice = false;
+
+		function setupVoice() {
+			if(!voice){
+				voices.push(main1_v, main2_v,main3_v, main4_v, base6_v, base7_v, base8_v, second9_v, second10_v)
+				voice=true
+				// console.log(main1_v)
+				// console.log(voices)
+			}
+			for (let i=0;i<voices.length; i++){
+				if(voices[i].isPlaying()){
+					voices[i].stop()
+				}
+			}
+		}
+
+		let voices=[]
+		let main1_v, main2_v,main3_v, main4_v, base6_v, base7_v, base8_v, second9_v, second10_v
+
+		function preload(){
+			main1_v=loadSound('speech/main1_v.mp3')
+			main2_v=loadSound('speech/main2_v.mp3')
+			main3_v=loadSound('speech/main3_v.mp3')
+			main4_v=loadSound('speech/main4_v.mp3')
+			base6_v=loadSound('speech/base6_v.mp3')
+			base7_v=loadSound('speech/base7_v.mp3')
+			base8_v=loadSound('speech/base8_v.mp3')
+			second9_v=loadSound('speech/second9_v.mp3')
+			second10_v=loadSound('speech/second10_v.mp3')
+		}
+
+		function v1(){
+			// voice.setVoice(49);
+			function temp(){
+				// console.log(voice);
+				// voice.speak(main1_v);
+				// console.log('aaa');
+				main1_v.play()
+			}
+			setTimeout(temp,2000)
+		}
+
+		function v2(){
+			//console.log(main2_v.isPlaying())
+			if(!main2_v.isPlaying()){
+				main2_v.play()
+			}
+		}
+
+		function v3(){
+			//voice.setVoice(49);
+			function temp(){main3_v.play()}
+			setTimeout(temp,2000)
+		}
+
+		function v4(){
+			if(!main4_v.isPlaying()){
+				main4_v.play()
+			}
+		}
+
+		function v6(){
+			if(!base6_v.isPlaying()){
+				base6_v.play()
+			}
+		}
+
+		function v7(){
+			//voice.setVoice(49);
+			function temp(){base7_v.play()}
+			setTimeout(temp,2000)
+		}
+
+		function v8(){
+			if(!base8_v.isPlaying()){
+				base8_v.play()
+			}
+		}
+
+		function v9(){
+			//voice.setVoice(49);
+			function temp(){second9_v.play()}
+			setTimeout(temp,2000)
+		}
+
+		function v10(){
+			if(!second10_v.isPlaying()){
+				second10_v.play()
+			}
+		}
+
+
+		close_img10.onclick=function(e){
+			close_img10_clicked=true
+		}
+		close_img8.onclick=function(e){
+			close_img8_clicked=true
+		}
+		function handleRoomChange() {
+		  if (room.value === "main") {
+		    m.classList.remove("hidden");
+		    b.classList.add("hidden");
+		    s.classList.add("hidden");
+		  } else if (room.value === "basement") {
+		    m.classList.add("hidden");
+		    b.classList.remove("hidden");
+		    s.classList.add("hidden");
+		  } else if (room.value === "second") {
+		    m.classList.add("hidden");
+		    b.classList.add("hidden");
+		    s.classList.remove("hidden");
+		  }
+		}
+
+		// Attach the event handler to the 'room' element
+		room.addEventListener("change", handleRoomChange);
+
+		//spot select 
+		let spotClicked = false;
+		let currentClickedSpot = null;
+
+		for (let i = 0; i < spots.length; i++) {
+		  spots[i].onmouseover = function (e) {
+		    if (!spotClicked && currentClickedSpot !== spots[i]) {
+		      spots[i].src = 'images/hover.png';
+		    }
+		  }
+		  spots[i].onmouseout = function (e) {
+		    if (!spotClicked && currentClickedSpot !== spots[i]) {
+		      spots[i].src = 'images/button.png';
+		    }
+		  }
+
+		  spots[i].addEventListener('click', function (e) {
+		    e.stopPropagation();
+		    spotClicked = true;
+		    instruction.classList.add('hidden')
+		    room.style.border="2px solid white"
+
+		    // Reset the previous clicked spot
+		    if (currentClickedSpot) {
+		      currentClickedSpot.src = 'images/button.png';
+		      currentClickedSpot.style.width="6%"
+		    }
+
+		    // Update the current clicked spot
+		    currentClickedSpot = spots[i];
+		    currentClickedSpot.src = 'images/current.png';
+
+		    map.style.top = "10px";
+		    map.style.left = "10px";
+		    map.style.width = "15%";
+		    currentClickedSpot.style.width="8%"
+		    expand.classList.remove('hidden')
+		    close.classList.add('hidden')
+
+		    // Reset the spotClicked flag after the click event is processed.
+		    setTimeout(() => {
+		      spotClicked = false;
+		    }, 0);
+		  })
+		}
+
+		//expand map
+		expand.onclick=function(e){
+			e.stopPropagation();
+		    map.style.top = "50px";
+		    map.style.left = "350px";
+		    map.style.width = "800px";
+		    expand.classList.add('hidden')
+		    close.classList.remove('hidden')
+		}
+
+		//close map
+		close.onclick=function(e){
+			e.stopPropagation();
+			map.style.top = "10px";
+		    map.style.left = "10px";
+		    map.style.width = "15%";
+		    expand.classList.remove('hidden')
+		    close.classList.add('hidden')
+		}
+
+
+
+		//individual spots click events
+		main1.addEventListener('click',function(e){
+			//change the environment backdrop
+			selected.src='images/rooms/main1.JPG'
+			
+			//play voice
+			setupVoice();
+			v1()
+
+
+			//visibility of aframe elevator arrows
+			if (!a.visible){
+				a.toggleVisibility()
+				console.log("a showed")
+			} 
+			if(d.visible){
+				d.toggleVisibility()
+			}
+			if(c.visible){
+				c.toggleVisibility()
+			}
+			if(t.visible){
+				t.toggleVisibility()
+			}
+		})
+
+		main2.addEventListener('click',function(e){
+			selected.src='images/rooms/main2.JPG'
+			setupVoice();
+			//v2()
+			if(a.visible){
+				a.toggleVisibility()
+			}
+			if(d.visible){
+				d.toggleVisibility()
+			}
+			if(c.visible){
+				c.toggleVisibility()
+			}
+			if(t.visible){
+				t.toggleVisibility()
+			}
+		})
+		main3.addEventListener('click',function(e){
+			selected.src='images/rooms/main3.JPG'
+			setupVoice();
+			v3()
+			if(a.visible){
+				a.toggleVisibility()
+			}
+			if(d.visible){
+				d.toggleVisibility()
+			}
+			if(c.visible){
+				c.toggleVisibility()
+			}
+			if(t.visible){
+				t.toggleVisibility()
+			}
+		})
+		main4.addEventListener('click',function(e){
+			selected.src='images/rooms/main4.JPG'
+			setupVoice();
+			if(a.visible){
+				a.toggleVisibility()
+			}
+			if(d.visible){
+				d.toggleVisibility()
+			}
+			if(c.visible){
+				c.toggleVisibility()
+			}
+			if(t.visible){
+				t.toggleVisibility()
+			}
+		})
+		main5.addEventListener('click',function(e){
+			selected.src='images/rooms/main5.JPG'
+			setupVoice();
+			if (!c.visible){
+				c.toggleVisibility()
+				console.log("c showed")
+			} 
+			if(d.visible){
+				d.toggleVisibility()
+			}
+			if(a.visible){
+				a.toggleVisibility()
+			}
+			if(t.visible){
+				t.toggleVisibility()
+			}
+		})
+		base6.addEventListener('click',function(e){
+			selected.src='images/rooms/base6.JPG'
+			setupVoice();
+			if(a.visible){
+				a.toggleVisibility()
+			}
+			if(d.visible){
+				d.toggleVisibility()
+			}
+			if(c.visible){
+				c.toggleVisibility()
+			}
+			if(t.visible){
+				t.toggleVisibility()
+			}
+		})
+		base7.addEventListener('click',function(e){
+			selected.src='images/rooms/base7.JPG'
+			setupVoice();
+			v7()
+			if(a.visible){
+				a.toggleVisibility()
+			}
+			if(d.visible){
+				d.toggleVisibility()
+			}
+			if(c.visible){
+				c.toggleVisibility()
+			}
+			if(t.visible){
+				t.toggleVisibility()
+			}
+		})
+		base8.addEventListener('click',function(e){
+			selected.src='images/rooms/base8.JPG'
+			setupVoice();
+			if (!t.visible){
+				t.toggleVisibility()
+				console.log("t showed")
+			} 
+			if(d.visible){
+				d.toggleVisibility()
+			}
+			if(a.visible){
+				a.toggleVisibility()
+			}
+			if(c.visible){
+				c.toggleVisibility()
+			}
+		})
+		second9.addEventListener('click',function(e){
+			selected.src='images/rooms/second9.JPG'
+			setupVoice();
+			v9()
+			if (!d.visible){
+				d.toggleVisibility()
+				console.log("d showed")
+			} 
+			if(c.visible){
+				c.toggleVisibility()
+			}
+			if(a.visible){
+				a.toggleVisibility()
+			}
+			if(t.visible){
+				t.toggleVisibility()
+			}
+		})
+		second10.addEventListener('click',function(e){
+			selected.src='images/rooms/second10.JPG'
+			setupVoice();
+			if(a.visible){
+				a.toggleVisibility()
+			}
+			if(d.visible){
+				d.toggleVisibility()
+			}
+			if(c.visible){
+				c.toggleVisibility()
+			}
+			if(t.visible){
+				t.toggleVisibility()
+			}
+		})
+
+
+		</script>
+
+		<script src="sketch.js"></script>
+	
+
+	</body>
+</html>
